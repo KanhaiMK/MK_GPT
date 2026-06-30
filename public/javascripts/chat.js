@@ -194,8 +194,10 @@ async function openConversation(id, title) {
     // Update topbar title
     document.getElementById('chat-title').textContent = title;
 
-    // Show upload button
-    document.getElementById('upload-btn-label').style.display = 'block';
+    // Reset upload button label to default before checking for existing PDFs
+    const label = document.getElementById('upload-btn-label');
+    label.innerHTML = `<input type="file" id="pdf-upload" accept=".pdf" onchange="uploadPDF()" style="display:none"/> 📄 Upload PDF`;
+    label.style.display = 'block';
 
     // Highlight active conversation in sidebar
     document.querySelectorAll('.convo-item').forEach(el => {

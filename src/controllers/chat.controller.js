@@ -242,8 +242,13 @@ const sendMessageStream = async (req, res) => {
         res.setHeader("Connection", "keep-alive");
 
         // 7. Get stream from Groq
-        const stream = await getChatResponseStream(formattedMessages);
-
+let stream;
+try {
+    stream = await getChatResponseStream(formattedMessages);
+} catch (groqError) {
+    console.log("GROQ STREAM INIT ERROR:", groqError.message);
+    return res.status(500).json({ success: false, message: groqError.message });
+}
         // 8. Loop over chunks as they arrive and forward to browser
         let fullReply = "";
 
