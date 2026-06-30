@@ -240,7 +240,10 @@ ${context}`;
         res.setHeader("Content-Type", "text/event-stream");
         res.setHeader("Cache-Control", "no-cache");
         res.setHeader("Connection", "keep-alive");
-
+console.log("=== PROMPT TOKEN ESTIMATE ===");
+console.log("System prompt length:", systemPrompt.length);
+console.log("Number of history messages:", history.length);
+console.log("Total formattedMessages:", formattedMessages.length);
         // 7. Get stream from Groq
         const stream = await getChatResponseStream(formattedMessages);
 
