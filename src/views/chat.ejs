@@ -1,0 +1,66 @@
+<%- include('partials/head') %>
+
+<div class="chat-app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-hex"><span class="logo-m">M</span><span class="logo-k">K</span></div>
+        <div class="logo-text">MK_<span>GPT</span></div>
+      </div>
+    </div>
+
+    <button class="new-chat-btn" onclick="newChat()">
+      + New Chat
+    </button>
+
+    <div class="conversations-list" id="conversations-list">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <main class="chat-main">
+
+    <!-- TOP BAR -->
+    <div class="chat-topbar">
+      <span id="chat-title">Select a conversation</span>
+      <label class="upload-btn" id="upload-btn-label" style="display:none">
+        <input type="file" id="pdf-upload" accept=".pdf" onchange="uploadPDF()" style="display:none"/>
+        📄 Upload PDF
+      </label>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="messages-area" id="messages-area">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-hex">MK</div>
+        <h3>How can I help you today?</h3>
+        <p>Start a new chat or select an existing one</p>
+      </div>
+    </div>
+
+    <!-- INPUT BAR -->
+    <div class="input-bar">
+      <textarea 
+        id="message-input" 
+        placeholder="Message MK GPT..." 
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">
+        ➤
+      </button>
+    </div>
+
+  </main>
+</div>
+
+<script src="/javascripts/chat.js"></script>
+<%- include('partials/footer') %>
