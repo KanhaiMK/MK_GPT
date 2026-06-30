@@ -255,6 +255,7 @@ let chunkCount = 0;
 
 for await (const chunk of stream) {
     chunkCount++;
+    console.log("RAW CHUNK:", JSON.stringify(chunk));
     const text = chunk.choices[0]?.delta?.content || "";
     if (text) {
         fullReply += text;
