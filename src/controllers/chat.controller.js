@@ -109,9 +109,7 @@ const sendMessage = async (req, res) => {
             // 4b. Find most relevant chunks
             const relevantChunks = await findSimilarChunks(queryEmbedding, allChunks);
 
-            if (relevantChunks.length === 0) {
-                // No relevant chunks found — fall back to normal chat
-                systemPrompt = `You are a helpful AI assistant. Answer clearly and concisely.\n\n${KANHAI_INFO}`;
+            if (relevantChunks.length > 0) {
                 // 4c. Build context string from relevant chunks
                 const context = relevantChunks
                     .map((c, i) => `--- chunk ${i + 1} ---\n${c.chunkText}`)
@@ -205,9 +203,7 @@ const sendMessageStream = async (req, res) => {
             // 4b. Find most relevant chunks
             const relevantChunks = await findSimilarChunks(queryEmbedding, allChunks);
 
-            if (relevantChunks.length === 0) {
-                // No relevant chunks found — fall back to normal chat
-                systemPrompt = `You are a helpful AI assistant. Answer clearly and concisely.\n\n${KANHAI_INFO}`;
+            if (relevantChunks.length > 0) {
                 // 4c. Build context string from relevant chunks
                 const context = relevantChunks
                     .map((c, i) => `--- chunk ${i + 1} ---\n${c.chunkText}`)
