@@ -116,17 +116,17 @@ const sendMessage = async (req, res) => {
                     .join("\n\n");
 
                 systemPrompt = `You are a helpful AI assistant with access to a document uploaded by the user.
-                ${KANHAI_INFO}
-                INSTRUCTIONS:
-                - If the question is about the document, answer ONLY using the CONTEXT provided below.
-                - Do NOT make up information that is not present in the CONTEXT.
-                - If the CONTEXT doesn't contain enough information to answer, say exactly: "I couldn't find this information in the uploaded document."
-                - If the question is general knowledge unrelated to the document, answer freely from your own knowledge.
-                - If the question refers to something discussed earlier, use the conversation history to answer.
-                - Keep answers concise and accurate.
+${KANHAI_INFO}
+INSTRUCTIONS:
+- If the question is about the document, answer ONLY using the CONTEXT provided below.
+- Do NOT make up information that is not present in the CONTEXT.
+- If the CONTEXT doesn't contain enough information to answer, say exactly: "I couldn't find this information in the uploaded document."
+- If the question is general knowledge unrelated to the document, answer freely from your own knowledge.
+- If the question refers to something discussed earlier, use the conversation history to answer.
+- Keep answers concise and accurate.
 
-                CONTEXT FROM DOCUMENT:
-                ${context}`;
+CONTEXT FROM DOCUMENT:
+${context}`;
             }
         }
 
@@ -210,17 +210,17 @@ const sendMessageStream = async (req, res) => {
                     .join("\n\n");
 
                 systemPrompt = `You are a helpful AI assistant with access to a document uploaded by the user.
-                ${KANHAI_INFO}
-                INSTRUCTIONS:
-                - If the question is about the document, answer ONLY using the CONTEXT provided below.
-                - Do NOT make up information that is not present in the CONTEXT.
-                - If the CONTEXT doesn't contain enough information to answer, say exactly: "I couldn't find this information in the uploaded document."
-                - If the question is general knowledge unrelated to the document, answer freely from your own knowledge.
-                - If the question refers to something discussed earlier, use the conversation history to answer.
-                - Keep answers concise and accurate.
+${KANHAI_INFO}
+INSTRUCTIONS:
+- If the question is about the document, answer ONLY using the CONTEXT provided below.
+- Do NOT make up information that is not present in the CONTEXT.
+- If the CONTEXT doesn't contain enough information to answer, say exactly: "I couldn't find this information in the uploaded document."
+- If the question is general knowledge unrelated to the document, answer freely from your own knowledge.
+- If the question refers to something discussed earlier, use the conversation history to answer.
+- Keep answers concise and accurate.
 
-                CONTEXT FROM DOCUMENT:
-                ${context}`;
+CONTEXT FROM DOCUMENT:
+${context}`;
             }
         }
 
@@ -242,35 +242,26 @@ const sendMessageStream = async (req, res) => {
         res.setHeader("Connection", "keep-alive");
 
         // 7. Get stream from Groq
-let stream;
-try {
-    stream = await getChatResponseStream(formattedMessages);
-} catch (groqError) {
-    console.log("GROQ STREAM INIT ERROR:", groqError.message);
-    return res.status(500).json({ success: false, message: groqError.message });
-}
+        const stream = await getChatResponseStream(formattedMessages);
+
         // 8. Loop over chunks as they arrive and forward to browser
-let fullReply = "";
-let chunkCount = 0;
+        let fullReply = "";
 
-for await (const chunk of stream) {
-    chunkCount++;
-    console.log("RAW CHUNK:", JSON.stringify(chunk));
-    const text = chunk.choices[0]?.delta?.content || "";
-    if (text) {
-        fullReply += text;
-        res.write(`data: ${JSON.stringify({ text })}\n\n`);
-    }
-}
-
-console.log("Total chunks received from Groq:", chunkCount);
-console.log("Final fullReply length:", fullReply.length);
+        for await (const chunk of stream) {
+            const text = chunk.choices[0]?.delta?.content || "";
+            if (text) {
+                fullReply += text;
+                res.write(`data: ${JSON.stringify({ text })}\n\n`);
+            }
+        }
 
         // 9. Save complete reply to DB after streaming finishes
+        const finalReply = fullReply.trim() || "I'm sorry, I couldn't generate a response. Please try rephrasing your question.";
+
         await Message.create({
             conversationId: id,
             role: "assistant",
-            content: fullReply,
+            content: finalReply,
         });
 
         await Conversation.findByIdAndUpdate(id, { updatedAt: new Date() });
@@ -280,8 +271,7 @@ console.log("Final fullReply length:", fullReply.length);
         res.end();
 
     } catch (error) {
-    console.log("STREAM ERROR:", error.message)
-    res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });
 }
 };
 
