@@ -250,15 +250,20 @@ try {
     return res.status(500).json({ success: false, message: groqError.message });
 }
         // 8. Loop over chunks as they arrive and forward to browser
-        let fullReply = "";
+let fullReply = "";
+let chunkCount = 0;
 
-        for await (const chunk of stream) {
-            const text = chunk.choices[0]?.delta?.content || "";
-            if (text) {
-                fullReply += text;
-                res.write(`data: ${JSON.stringify({ text })}\n\n`);
-            }
-        }
+for await (const chunk of stream) {
+    chunkCount++;
+    const text = chunk.choices[0]?.delta?.content || "";
+    if (text) {
+        fullReply += text;
+        res.write(`data: ${JSON.stringify({ text })}\n\n`);
+    }
+}
+
+console.log("Total chunks received from Groq:", chunkCount);
+console.log("Final fullReply length:", fullReply.length);
 
         // 9. Save complete reply to DB after streaming finishes
         await Message.create({
